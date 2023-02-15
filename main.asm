@@ -25,6 +25,9 @@ cbi DDRB,0 ;set PB0 input (pin 8)
 
 
 
+
+
+
 ; Replace with your application code
 start:
 ; display a digit 
@@ -35,29 +38,32 @@ start:
 ;ldi R12, disp5 ; Load Pattern 5
 ;ldi R13, disp4 ;Load Pattern "4"
 ;ldi R14, disp3 ;Load pattern "3"
-;ldi R19, disp2 ;load pattern "2"
-ldi R16, disp1  ; load pattern on button press
-ldi R18, disp0 ;load pattern for start display
+ldi R16,0 
+
+ldi R18, disp0  ; load pattern on button press 
 rcall display ; call display subroutine
 rjmp start
 
 
 display: ; backup used registers on stack
-push R16
+push R19
 push R18
+push R20
 push R17
 in R17, SREG
 push R17
 ldi R17, 8 ; loop --> test all 8 bits
 loop:
-	
-	SBIC PINB,0
+	rcall count_to_digital
+
 	rol R18
 
-
 	SBIS PINB,0
-	rol R16 ; rotate left trough Carry
+	inc R16
 	
+
+	
+
 	BRCS set_ser_in_1 ; branch if Carry is set; put code here to set SER to 0 
 	cbi PORTB,3
 	
@@ -65,7 +71,7 @@ loop:
 
 set_ser_in_1:
 	sbi PORTB,3
-
+	
 end:
 
 
@@ -82,10 +88,37 @@ end:
 	pop R17
 	out SREG, R17
 	pop R17
-	pop R16
+	pop R18
+	pop R19
+	pop R20
 
 	ret  
 
+count_to_digital:
+	brne check_0
+		ret
+	brne check_1
+		ret
+	check_0:
+		ldi R18, disp0
+	check_1:
+		ldi R18, disp1
+	check_2:
+		ldi R18, disp2
+	check_3:
+		ldi R18, disp3
+	check_4:
+		ldi R18, disp4
+	check_5:
+		ldi R18, disp5
+	check_6:
+		ldi R18, disp6
+	check_7:
+		ldi R18, disp7
+	check_8:
+		ldi R18, disp8
+	check_9:
+		ldi R18, disp9
 
 ;loop:
 ;sbi   PORTB,1     ; LED at PB1 off
