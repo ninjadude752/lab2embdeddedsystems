@@ -6,10 +6,10 @@
 ;
 
 ;config
-sbi DDRB,3 ;set PB3 output (pin 11)
-sbi DDRB,2 ;set PB2 output (pin 10)
-sbi DDRB,1 ;set PB1 output (pin 9)
-cbi DDRB,0 ;set PB0 input (pin 8)
+sbi DDRB,3 ;set PB3 output (pin 11 on board) (14 on Counter)
+sbi DDRB,2 ;set PB2 output (pin 10 on board) (pin 11 on counter)
+sbi DDRB,1 ;set PB1 output (pin 9 on board) (pin 13 on counter)
+cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 
 .equ disp0 = 0x3F
 .equ disp1 = 0x6
@@ -30,16 +30,7 @@ cbi DDRB,0 ;set PB0 input (pin 8)
 
 ; Replace with your application code
 start:
-; display a digit 
-;ldi R8, disp9 ;Load Pattern 9
-;ldi R9, disp8 ;Load Pattern 8
-;ldi R10, disp7 ;Load Pattern 7
-;ldi R11, disp6 ;Load Pattern 6
-;ldi R12, disp5 ; Load Pattern 5
-;ldi R13, disp4 ;Load Pattern "4"
-;ldi R14, disp3 ;Load pattern "3"
 ldi R16,0 
-
 ldi R18, disp0  ; load pattern on button press 
 rcall display ; call display subroutine
 rjmp start
@@ -54,28 +45,28 @@ in R17, SREG
 push R17
 ldi R17, 8 ; loop --> test all 8 bits
 loop:
+
+
+	SBIC PINB,0
+	inc R16
+
+
 	rcall count_to_digital
+	
 
 	rol R18
-
-	SBIS PINB,0
-	inc R16
-	
 
 	
 
 	BRCS set_ser_in_1 ; branch if Carry is set; put code here to set SER to 0 
 	cbi PORTB,3
-	
+
 	rjmp end
 
 set_ser_in_1:
 	sbi PORTB,3
 	
 end:
-
-
-
 	sbi PORTB,2
 	cbi PORTB,2
 ; put code here to generate SRCLK pulse...
@@ -95,30 +86,67 @@ end:
 	ret  
 
 count_to_digital:
-	brne check_0
+	cpi R16, 0x00
+	breq check_0
 		ret
-	brne check_1
+	cpi R16, 0x01
+	breq check_1
+		ret
+	cpi R16, 0x02
+	breq check_2
+		ret
+	cpi R16, 0x03
+	breq check_3
+		ret
+	cpi R16, 0x04
+	breq check_4
+		ret
+	cpi R16, 0x05
+	breq check_5
+		ret
+	cpi R16, 0x06
+	breq check_6
+		ret
+	cpi R16, 0x07
+	breq check_7
+		ret
+	cpi R16, 0x08
+	breq check_8
+		ret
+	cpi R16, 0x09
+	breq check_9
 		ret
 	check_0:
 		ldi R18, disp0
+		rjmp done
 	check_1:
 		ldi R18, disp1
+		rjmp done
 	check_2:
 		ldi R18, disp2
+		rjmp done
 	check_3:
 		ldi R18, disp3
+		rjmp done
 	check_4:
 		ldi R18, disp4
+		rjmp done
 	check_5:
 		ldi R18, disp5
+		rjmp done
 	check_6:
 		ldi R18, disp6
+		rjmp done
 	check_7:
 		ldi R18, disp7
+		rjmp done
 	check_8:
 		ldi R18, disp8
+		rjmp done
 	check_9:
 		ldi R18, disp9
+		rjmp done
+	done:
 
 ;loop:
 ;sbi   PORTB,1     ; LED at PB1 off
