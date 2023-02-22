@@ -11,6 +11,9 @@ sbi DDRB,2 ;set PB2 output (pin 10 on board) (pin 11 on counter)
 sbi DDRB,1 ;set PB1 output (pin 9 on board) (pin 13 on counter)
 cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 
+.equ count = 0x6B33		; assign a 16-bit value to symbol "count"
+
+
 .equ disp0 = 0x3F
 .equ disp1 = 0x6
 .equ disp2 = 0x5B
@@ -22,19 +25,13 @@ cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 .equ disp8 = 0x7F
 .equ disp9 = 0x6F
 
-clr R18
 
 ldi R16,0x00
 ldi R18,disp0
 
-
-
-
-
-
-
 ; Replace with your application code
 start:
+
 
 SBIC PINB,0
 rjmp press
@@ -44,11 +41,14 @@ rcall display ; call display subroutine
 
 
 press:
+	rcall delay_long
 	inc R16
 	rcall count_to_digital
 
 
 rjmp start
+
+
 
 
 display: ; backup used registers on stack
@@ -155,6 +155,7 @@ count_to_digital:
 		ldi R18, disp9
 		rjmp start
 
+
 ;loop:
 ;sbi   PORTB,1     ; LED at PB1 off
 ;cbi   PORTB,2     ; LED at PB2 on
@@ -169,17 +170,16 @@ count_to_digital:
 ; With a 16 MHz clock, the values below produce a ~4,194.24 ms delay.
 ;--------------------------------------------------------------------
 
-;.equ count = 0x6B33		; assign a 16-bit value to symbol "count"
 
-;delay_long:
-	;ldi r30, low(count)	  	; r31:r30  <-- load a 16-bit value into counter register for outer loop
-	;ldi r31, high(count);
-;d1:
-	;ldi   r29, 0x4E		    	; r29 <-- load a 8-bit value into counter register for inner loop
-;d2:
-	;nop											; no operation
-	;dec   r29            		; r29 <-- r29 - 1
-	;brne  d2								; branch to d2 if result is not "0"
-	;sbiw r31:r30, 1					; r31:r30 <-- r31:r30 - 1
-	;brne d1									; branch to d1 if result is not "0"
-	;ret				
+delay_long:
+	ldi r30, low(count)	  	; r31:r30  <-- load a 16-bit value into counter register for outer loop
+	ldi r31, high(count);
+d1:
+	ldi   r29, 0x4E		    	; r29 <-- load a 8-bit value into counter register for inner loop
+d2:
+	nop											; no operation
+	dec   r29            		; r29 <-- r29 - 1
+	brne  d2								; branch to d2 if result is not "0"
+	sbiw r31:r30, 1					; r31:r30 <-- r31:r30 - 1
+	brne d1									; branch to d1 if result is not "0"
+	ret				
