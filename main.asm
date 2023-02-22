@@ -30,7 +30,7 @@ cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 
 ; Replace with your application code
 start:
-ldi R16,0 
+ldi R16,0x00 
 ldi R18, disp0  ; load pattern on button press 
 rcall display ; call display subroutine
 rjmp start
@@ -79,9 +79,9 @@ end:
 	pop R17
 	out SREG, R17
 	pop R17
+	pop R20
 	pop R18
 	pop R19
-	pop R20
 
 	ret  
 
