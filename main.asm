@@ -39,7 +39,7 @@ start:
 
 
 
-SBIs PINB,0
+SBIS PINB,0
 rjmp press
 
 SBIS PINB,4
@@ -92,7 +92,8 @@ press:
 	clr R16
 	clr R21
 	rjmp count_to_digital
-	rjmp start
+
+
 
 	
 
@@ -146,6 +147,7 @@ end:
 
 	ret  
 
+
 count_to_digital:
 	cpi R16, 0x00
 	breq check_0
@@ -183,42 +185,93 @@ count_to_digital:
 		;rjmp start
 		;rjmp check_0
 
+	midway2:
+		rjmp start
+
+
 	check_1:
 		clr R18
 		ldi R18, disp1
-		rjmp start
+
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway
+		;rjmp start
 	check_2:
 		clr R18
 		ldi R18, disp2
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
 	check_3:
 		clr R18
 		ldi R18, disp3
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_4:
 		clr R18
 		ldi R18, disp4
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_5:
 		clr R18
 		ldi R18, disp5
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_6:
 		clr R18
 		ldi R18, disp6
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_7:
 		clr R18
 		ldi R18, disp7
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_8:
 		clr R18
 		ldi R18, disp8
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
 	check_9:
 		clr R18
 		ldi R18, disp9
-		rjmp start
+		cpi R23, 1
+		breq loop2
+		
+		cpi R23,0
+		breq midway2
+		;rjmp start
+
+
 
 ;loop:
 ;sbi   PORTB,1     ; LED at PB1 off
@@ -263,11 +316,14 @@ d2:
 	
 
 countdown:
-
+	inc R23
 	loop2:
-		inc R23
+		
+
+
+		rcall display
 		dec r16
-		rjmp count_to_digital
+		brne count_to_digital
 		
 
 /*	flash:
