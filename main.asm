@@ -188,6 +188,8 @@ count_to_digital:
 	midway2:
 		rjmp start
 
+	
+
 
 	check_1:
 		clr R18
@@ -271,33 +273,8 @@ count_to_digital:
 		breq midway2
 		;rjmp start
 
-
-
-;loop:
-;sbi   PORTB,1     ; LED at PB1 off
-;cbi   PORTB,2     ; LED at PB2 on
-;rcall delay_long  ; Wait
-;cbi   PORTB,1     ; LED at PB1 on
-;sbi   PORTB,2     ; LED at PB2 off
-;rcall delay_long  ; Wait
-;rjmp   loop
-
-
-; Generate a delay using two nested loops that do "nothing".
-; With a 16 MHz clock, the values below produce a ~4,194.24 ms delay.
-;--------------------------------------------------------------------
-
-/*countA:
-	inc R21
-	rcall delay_long
-	
-
-	rjmp start 
-*/	
-
-
-
-; To loop for a second, do a very similar loop with a delay, if the buttonB is pressed, and increment down per second
+	toJump:	
+		rjmp count_to_digital
 
 
 
@@ -316,15 +293,25 @@ d2:
 	
 
 countdown:
-	inc R23
+	ldi R23,1
 	loop2:
 		
 
 
 		rcall display
 		dec r16
-		brne count_to_digital
+		brne toJump
 		
+		
+	
+		
+
+	/*rcall delay_long
+	dec r25
+	brne loop3
+
+
+	*/
 
 /*	flash:
 	ldi R22, 4 
