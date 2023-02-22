@@ -174,7 +174,7 @@ count_to_digital:
 		ldi R18, disp0
 
 		cpi R23, 1
-		breq check_0
+		breq midway
 		
 		cpi R23,0
 		breq midway
@@ -263,6 +263,7 @@ d2:
 	
 
 countdown:
+
 	loop2:
 		inc R23
 		dec r16
