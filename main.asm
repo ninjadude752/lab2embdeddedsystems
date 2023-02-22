@@ -37,8 +37,8 @@ start:
 
 
 
-SBIC PINB,0
-rjmp countA
+SBIs PINB,0
+rjmp press
 
 ;SBIC PIND,7
 ;rjmp countdown
@@ -46,7 +46,7 @@ rjmp countA
 
 rcall display ; call display subroutine
 
-rjmp press
+rjmp start
 
 
 
@@ -55,33 +55,39 @@ rjmp press
 press:
 	;rcall delay_long
 	;rcall countA
-	tst R21
+	ldi r25, 20
+	loop3:
+
+	sbic PINB, 0
+	rjmp upOne
+
+	rcall delay_long
+	dec r25
+	brne loop3
+
+	/*tst R21
 	breq onZero
 
-	cpi R21, 0x62
+	cpi R21, 0x3E
 	brlo upOne
 
-	cpi R21, 0x63
-	brge reset
+	cpi R21, 0x3F
+	brge reset*/
 
-	rjmp start
+	rjmp reset
 
 	upOne:
 	inc R16
 	clr R21
-	rcall count_to_digital
+	rjmp count_to_digital
 	rjmp start
 
 	reset:
 	clr R16
 	clr R21
-	rcall count_to_digital
-
+	rjmp count_to_digital
 	rjmp start
 
-	onZero:
-
-	rjmp start
 	
 
 
@@ -158,7 +164,10 @@ count_to_digital:
 	check_0:
 		clr R18
 		ldi R18, disp0
+
+		sbic PINB, 0
 		rjmp start
+		rjmp check_0
 	check_1:
 		clr R18
 		ldi R18, disp1
@@ -211,13 +220,17 @@ count_to_digital:
 ; With a 16 MHz clock, the values below produce a ~4,194.24 ms delay.
 ;--------------------------------------------------------------------
 
-countA:
+/*countA:
 	inc R21
 	rcall delay_long
 	
 
 	rjmp start 
-	
+*/	
+
+
+
+; To loop for a second, do a very similar loop with a delay, if the buttonB is pressed, and increment down per second
 
 
 
