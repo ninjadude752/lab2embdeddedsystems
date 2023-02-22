@@ -22,6 +22,11 @@ cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 .equ disp8 = 0x7F
 .equ disp9 = 0x6F
 
+clr R18
+
+ldi R16,0x00
+ldi R18,disp0
+
 
 
 
@@ -30,9 +35,19 @@ cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 
 ; Replace with your application code
 start:
-ldi R16,0x00 
-ldi R18, disp0  ; load pattern on button press 
+
+SBIC PINB,0
+rjmp press
+
+
 rcall display ; call display subroutine
+
+
+press:
+	inc R16
+	rcall count_to_digital
+
+
 rjmp start
 
 
@@ -45,23 +60,15 @@ in R17, SREG
 push R17
 ldi R17, 8 ; loop --> test all 8 bits
 loop:
-
-
-	SBIC PINB,0
-	inc R16
-
-
-	rcall count_to_digital
 	
-
+	
 	rol R18
-
 	
-
 	BRCS set_ser_in_1 ; branch if Carry is set; put code here to set SER to 0 
 	cbi PORTB,3
 
 	rjmp end
+
 
 set_ser_in_1:
 	sbi PORTB,3
@@ -88,65 +95,65 @@ end:
 count_to_digital:
 	cpi R16, 0x00
 	breq check_0
-		ret
 	cpi R16, 0x01
 	breq check_1
-		ret
 	cpi R16, 0x02
 	breq check_2
-		ret
 	cpi R16, 0x03
 	breq check_3
-		ret
 	cpi R16, 0x04
 	breq check_4
-		ret
 	cpi R16, 0x05
 	breq check_5
-		ret
 	cpi R16, 0x06
 	breq check_6
-		ret
 	cpi R16, 0x07
 	breq check_7
-		ret
 	cpi R16, 0x08
 	breq check_8
-		ret
 	cpi R16, 0x09
 	breq check_9
-		ret
+	ret
 	check_0:
+		clr R18
 		ldi R18, disp0
-		rjmp done
+		rjmp start
 	check_1:
+		clr R18
 		ldi R18, disp1
-		rjmp done
+		rjmp start
 	check_2:
+		clr R18
 		ldi R18, disp2
-		rjmp done
+		rjmp start
 	check_3:
+		clr R18
 		ldi R18, disp3
-		rjmp done
+		rjmp start
 	check_4:
+		clr R18
 		ldi R18, disp4
-		rjmp done
+		rjmp start
 	check_5:
+		clr R18
 		ldi R18, disp5
-		rjmp done
+		rjmp start
 	check_6:
+		clr R18
 		ldi R18, disp6
-		rjmp done
+		rjmp start
 	check_7:
+		clr R18
 		ldi R18, disp7
-		rjmp done
+		rjmp start
 	check_8:
+		clr R18
 		ldi R18, disp8
-		rjmp done
+		rjmp start
 	check_9:
+		clr R18
 		ldi R18, disp9
-		rjmp done
-	done:
+		rjmp start
 
 ;loop:
 ;sbi   PORTB,1     ; LED at PB1 off
