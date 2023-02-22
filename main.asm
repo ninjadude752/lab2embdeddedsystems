@@ -12,7 +12,7 @@ sbi DDRB,1 ;set PB1 output (pin 9 on board) (pin 13 on counter)
 cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button A)
 cbi DDRB,4 ;set PD7 input, pin 7, on upper left button B
 
-.equ count = 0xfff		; assign a 16-bit value to symbol "count"
+.equ count = 0xff1		; assign a 16-bit value to symbol "count"
 .equ fourth_count = 0xff1 
 
 
@@ -37,6 +37,8 @@ ldi R18,disp0
 ; Replace with your application code
 start:
 
+rcall display
+
 
 
 SBIS PINB,0
@@ -49,7 +51,7 @@ rjmp countdown
 ;rjmp countdown
 
 
-rcall display ; call display subroutine
+ ; call display subroutine
 
 rjmp start
 
@@ -60,8 +62,8 @@ rjmp start
 press:
 	;rcall delay_long
 	;rcall countA
-	clr R23 
-	ldi r25, 20
+	ldi R23,0
+	ldi r25, 4
 	loop3:
 
 	sbic PINB, 0
@@ -175,11 +177,17 @@ count_to_digital:
 		clr R18
 		ldi R18, disp0
 
-		cpi R23, 1
-		breq midway
+
+		SBIC PINB,0
+		rjmp start
+
+		rjmp check_0
+
+		;cpi R23, 1
+		;breq midway
 		
-		cpi R23,0
-		breq midway
+		;cpi R23,0
+		;breq midway
 
 		;sbic PINB, 0
 		;rjmp start
@@ -282,7 +290,7 @@ delay_long:  ;delay for 0.16 sec
 	ldi r30, low(count)	  	; r31:r30  <-- load a 16-bit value into counter register for outer loop
 	ldi r31, high(count);
 d1:
-	ldi   r29, 0xf		    	; r29 <-- load a 8-bit value into counter register for inner loop
+	ldi   r29, 0xff		    	; r29 <-- load a 8-bit value into counter register for inner loop
 d2:
 	nop											; no operation
 	dec   r29            		; r29 <-- r29 - 1
@@ -295,50 +303,18 @@ d2:
 countdown:
 	ldi R23,1
 	loop2:
-		
-
-
 		rcall display
+		rcall delay_long
+		rcall delay_long
+		rcall delay_long
+		rcall delay_long
+		
+
 		dec r16
-		brne toJump
-		
-		
-	
-		
+		cpi r16, 255
+		breq start_stub
 
-	/*rcall delay_long
-	dec r25
-	brne loop3
-
-
-	*/
-
-/*	flash:
-	ldi R22, 4 
-
-	loopFlash:
-		rcall delay_long
-		rcall delay_long
-		rcall delay_long
-		rcall delay_long
-		ldi R16, dispFlash
 		rjmp count_to_digital
-		dec R22
-		brne loopFlash
-	
 
-	down_one:
-		ldi R24, 20
-
-
-		loopSec:
-		rcall delay_long
-		dec R16
-		rjmp count_to_digital
-		dec r24
-		brne loopSec
-
-		rjmp flash*/
-
-		rjmp start
-
+start_stub:
+	jmp	start
