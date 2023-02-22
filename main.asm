@@ -9,9 +9,11 @@
 sbi DDRB,3 ;set PB3 output (pin 11 on board) (14 on Counter)
 sbi DDRB,2 ;set PB2 output (pin 10 on board) (pin 11 on counter)
 sbi DDRB,1 ;set PB1 output (pin 9 on board) (pin 13 on counter)
-cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
+cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button A)
+cbi DDRD,7 ;set PD7 input, pin 7, on upper left button B
 
-.equ count = 0x6B33		; assign a 16-bit value to symbol "count"
+.equ count = 0xfff		; assign a 16-bit value to symbol "count"
+.equ fourth_count = 0xff1 
 
 
 .equ disp0 = 0x3F
@@ -27,26 +29,65 @@ cbi DDRB,0 ;set PB0 input (pin 8) (to upper left on button)
 
 
 ldi R16,0x00
+ldi R21, 0x00
 ldi R18,disp0
 
 ; Replace with your application code
 start:
 
 
+
 SBIC PINB,0
-rjmp press
+rjmp countA
+
+;SBIC PIND,7
+;rjmp countdown
 
 
 rcall display ; call display subroutine
 
+rjmp press
+
+
+
+
 
 press:
-	rcall delay_long
+	;rcall delay_long
+	;rcall countA
+	tst R21
+	breq onZero
+
+	cpi R21, 0x62
+	brlo upOne
+
+	cpi R21, 0x63
+	brge reset
+
+	rjmp start
+
+	upOne:
 	inc R16
+	clr R21
+	rcall count_to_digital
+	rjmp start
+
+	reset:
+	clr R16
+	clr R21
 	rcall count_to_digital
 
+	rjmp start
 
-rjmp start
+	onZero:
+
+	rjmp start
+	
+
+
+
+	;go into countA, and inc, then call a delay.
+	;if the counter is 4 or less, only inc R16 by 1, otherwise, reset R16
 
 
 
@@ -170,16 +211,42 @@ count_to_digital:
 ; With a 16 MHz clock, the values below produce a ~4,194.24 ms delay.
 ;--------------------------------------------------------------------
 
+countA:
+	inc R21
+	rcall delay_long
+	
 
-delay_long:
+	rjmp start 
+	
+
+
+
+delay_long:  ;delay for 0.16 sec
 	ldi r30, low(count)	  	; r31:r30  <-- load a 16-bit value into counter register for outer loop
 	ldi r31, high(count);
 d1:
-	ldi   r29, 0x4E		    	; r29 <-- load a 8-bit value into counter register for inner loop
+	ldi   r29, 0xf		    	; r29 <-- load a 8-bit value into counter register for inner loop
 d2:
 	nop											; no operation
 	dec   r29            		; r29 <-- r29 - 1
 	brne  d2								; branch to d2 if result is not "0"
 	sbiw r31:r30, 1					; r31:r30 <-- r31:r30 - 1
 	brne d1									; branch to d1 if result is not "0"
-	ret				
+	ret			
+	
+
+countdown:
+	tst R16
+	breq flash
+	tst R16
+	brne down_one
+
+	flash:
+
+		
+
+	down_one:
+		rcall delay_long
+		dec R16
+		rcall count_to_digital
+		rjmp start
